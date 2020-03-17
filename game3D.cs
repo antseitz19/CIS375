@@ -45,7 +45,9 @@ namespace ACFramework
             : base( pownergame ) 
 		{ 
 			BulletClass = new cCritter3DPlayerBullet( ); 
-            Sprite = new cSpriteQuake(ModelsMD2.Starfox); 
+
+      Sprite = new cSpriteQuake(ModelsMD2.Starfox); 
+
 			Sprite.SpriteAttitude = cMatrix3.scale( 2, 0.8f, 0.4f ); 
 			setRadius( cGame3D.PLAYERRADIUS ); //Default cCritter.PLAYERRADIUS is 0.4.  
 			setHealth( 10 ); 
@@ -77,9 +79,10 @@ namespace ACFramework
                 MessageBox.Show("DON'T GO THROUGH THAT DOOR!!!  DON'T EVEN THINK ABOUT IT!!!");
             }
  
+
         } 
 
-        public override bool collide( cCritter pcritter ) 
+    public override bool collide( cCritter pcritter ) 
 		{ 
 			bool playerhigherthancritter = Position.Y - Radius > pcritter.Position.Y; 
 		/* If you are "higher" than the pcritter, as in jumping on it, you get a point
@@ -93,7 +96,8 @@ namespace ACFramework
             if (!collided) 
 				return false;
 		/* If you're here, you collided.  We'll treat all the guys the same -- the collision
-	 with a Treasure is different, but we let the Treasure contol that collision. */ 
+	 with a Treasure is different, but we let the Treasure contol that collision. */
+
 			if ( playerhigherthancritter ) 
 			{
                 Framework.snd.play(Sound.Goopy); 
@@ -107,6 +111,7 @@ namespace ACFramework
 			pcritter.die(); 
 			return true; 
 		}
+
 
         public override cCritterBullet shoot()
         {
@@ -159,12 +164,14 @@ namespace ACFramework
             : base( pownergame ) 
 		{
             addForce(new cForceGravity(25.0f, new cVector3( 0.0f, -1, 0.00f ))); 
+
 			addForce( new cForceDrag( 20.0f ) );  // default friction strength 0.5
-            addForce(new aiEnemyForce(new cVector3(Game.Border.Lox, Game.Border.Loy, Game.Border.Loz)));//TEST AIENEMYFORCE CLASS-----
+      addForce(new aiEnemyForce(new cVector3(Game.Border.Lox, Game.Border.Loy, Game.Border.Loz)));//TEST AIENEMYFORCE CLASS-----
 			Density = 2.0f; 
 			MaxSpeed = 30.0f;
             if (pownergame != null) //Just to be safe.
                 Sprite = new cSpriteQuake(ModelsMD2.Duckman);
+
             
             // example of setting a specific model
             // setSprite(new cSpriteQuake(ModelsMD2.Knight));
@@ -182,6 +189,7 @@ namespace ACFramework
             MinTwitchThresholdSpeed = 4.0f; //Means sprite doesn't switch direction unless it's moving fast 
 			randomizePosition( new cRealBox3( new cVector3( _movebox.Lox, _movebox.Loy, _movebox.Loz + 4.0f), 
 				new cVector3( _movebox.Hix, _movebox.Loy, _movebox.Midz - 1.0f)));
+
 				/* I put them ahead of the player  */ 
 			randomizeVelocity( 0.0f, 30.0f, false ); 
 
@@ -240,44 +248,54 @@ namespace ACFramework
 			/* The sprites look nice from afar, but bitmap speed is really slow
 		when you get close to them, so don't use this. */ 
 			cShape ppoly = new cShape( 24 ); 
-			ppoly.Filled = false;
-            ppoly.LineColor = Color.LightGray;
+
+			ppoly.Filled = true;
+			ppoly.FillColor = Color.Gold;
+            ppoly.LineColor = Color.Black;
 			ppoly.LineWidthWeight = 0.5f;
 			Sprite = ppoly; 
-			_collidepriority = cCollider.CP_PLAYER + 1; /* Let this guy call collide on the
+			_collidepriority = cCollider.CP_PLAYER - 1; /* Let this guy call collide on the
 			player, as his method is overloaded in a special way. */ 
 			rotate( new cSpin( (float) Math.PI / 2.0f, new cVector3(0.0f, 0.0f, 1.0f) )); /* Trial and error shows this
 			rotation works to make it face the z diretion. */ 
 			setRadius( cGame3D.TREASURERADIUS ); 
 			FixedFlag = true;
-            moveTo(new cVector3(_movebox.Midx, _movebox.Midy - 2.0f,
+
+            moveTo(new cVector3(_movebox.Midx, _movebox.Midy - 10.0f,
                 _movebox.Loz - 1.5f * cGame3D.TREASURERADIUS));
 		} 
 
 		
 		public override bool collide( cCritter pcritter ) 
-		{ 
-			if ( contains( pcritter )) //disk of pcritter is wholly inside my disk 
+		{
+			bool collided = base.collide(pcritter);
+			if ( collided) //disk of pcritter is wholly inside my disk 
 			{
-                Framework.snd.play(Sound.Clap); 
+				
+                //Framework.snd.play(Sound.Clap); Change to mario coin sound
 				pcritter.addScore( 100 ); 
-				pcritter.addHealth( 1 ); 
-				pcritter.moveTo( new cVector3( _movebox.Midx, _movebox.Loy + 1.0f,
-                    _movebox.Hiz - 3.0f )); 
+				pcritter.addHealth( 1 );
+				this.die();
 				return true; 
 			} 
-			else 
+			else
+			{
 				return false; 
+			}
 		} 
 
 		//Checks if pcritter inside.
 	
 		public override int collidesWith( cCritter pothercritter ) 
-		{ 
-			if ( pothercritter is cCritter3DPlayer ) 
+		{
+			if ( pothercritter is cCritter3DPlayer )
+			{
 				return cCollider.COLLIDEASCALLER; 
-			else 
+			}
+			else
+			{
 				return cCollider.DONTCOLLIDE; 
+			}
 		} 
 
 		/* Only collide
@@ -296,6 +314,7 @@ namespace ACFramework
 
     class cGame3D : cGame 
 	{ 
+
 		public static readonly float TREASURERADIUS = 1.2f; 
 		public static readonly float WALLTHICKNESS = 0.5f; 
 		public static readonly float PLAYERRADIUS = 0.2f; 
@@ -334,7 +353,9 @@ namespace ACFramework
 			_seedcount = 7; 
 			setPlayer( new cCritter3DPlayer( this )); 
 			_ptreasure = new cCritterTreasure( this );
-            shape = new cCritterShape(this);
+
+			shape = new cCritterShape(this);
+
             shape.Sprite = new cSphere( 3, Color.DarkBlue );
             shape.moveTo(new cVector3( Border.Midx, Border.Hiy, Border.Midz ));
 
@@ -455,7 +476,9 @@ namespace ACFramework
 			    { 
 				    value.setViewpoint( new cVector3( 0.0f, 0.3f, -1.0f ), _border.Center); 
 					//Always make some setViewpoint call simply to put in a default zoom.
+
 				    value.zoom( 0.65f ); //Wideangle 
+
 				    cListenerViewerRide prider = ( cListenerViewerRide )( value.Listener); 
 				    prider.Offset = (new cVector3( -1.5f, 0.0f, 1.0f)); /* This offset is in the coordinate
 				    system of the player, where the negative X axis is the negative of the
@@ -488,11 +511,10 @@ namespace ACFramework
 					//(need to recheck propcount in case we just called seedCritters).
 			int modelcount = Biota.count<cCritter3Dcharacter>(); 
 			int modelstoadd = _seedcount - modelcount; 
-			for ( int i = 0; i < modelstoadd; i++)
-            {
-				new cCritter3Dcharacter( this );
-                
-            }
+
+			for ( int i = 0; i < modelstoadd; i++) 
+				new cCritter3Dcharacter( this ); 
+
 		// (3) Maybe check some other conditions.
 
             if (wentThrough && (Age - startNewRoom) > 2.0f)
