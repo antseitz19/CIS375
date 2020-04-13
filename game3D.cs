@@ -292,37 +292,44 @@ namespace ACFramework
         }
 	} 
 
-    //======================cGame3D========================== 
+   //======================cGame3D========================== 
 
     class cGame3D : cGame 
 	{ 
 		public static readonly float TREASURERADIUS = 1.2f; 
 		public static readonly float WALLTHICKNESS = 0.5f; 
 		public static readonly float PLAYERRADIUS = 0.2f; 
-		public static readonly float MAXPLAYERSPEED = 9.0f; 
+		public static readonly float MAXPLAYERSPEED = 30.0f; 
 		private cCritterTreasure _ptreasure;
         private cCritterShape shape;
         private bool doorcollision;
         private bool wentThrough = false;
         private float startNewRoom;
+		private cCritter3DPlayer player;
 		
 		public cGame3D() 
 		{
+
+			
+			cRoom Room = new cRoom(this,3);
+			player = new cCritter3DPlayer(this);
+			setPlayer(player);
+			Room.Place(player, 4, 4);
+
+
+		
+			/*
 			doorcollision = false; 
 			_menuflags &= ~ cGame.MENU_BOUNCEWRAP; 
 			_menuflags |= cGame.MENU_HOPPER; //Turn on hopper listener option.
 			_spritetype = cGame.ST_MESHSKIN; 
+
+			
 			setBorder( 64.0f, 16.0f, 64.0f ); // size of the world
 		
 			cRealBox3 skeleton = new cRealBox3();
             skeleton.copy(_border);
-			setSkyBox( skeleton );
-		/* In this world the coordinates are screwed up to match the screwed up
-		listener that I use.  I should fix the listener and the coords.
-		Meanwhile...
-		I am flying into the screen from HIZ towards LOZ, and
-		LOX below and HIX above and
-		LOY on the right and HIY on the left. */ 
+
 			SkyBox.setSideSolidColor( cRealBox3.HIZ, Color.Aqua ); //Make the near HIZ transparent 
 			SkyBox.setSideSolidColor( cRealBox3.LOZ, Color.Aqua ); //Far wall 
 			SkyBox.setSideSolidColor( cRealBox3.LOX, Color.DarkOrchid ); //left wall 
@@ -338,12 +345,7 @@ namespace ACFramework
             shape.Sprite = new cSphere( 3, Color.DarkBlue );
             shape.moveTo(new cVector3( Border.Midx, Border.Hiy, Border.Midz ));
 
-			/* In this world the x and y go left and up respectively, while z comes out of the screen.
-		A wall views its "thickness" as in the y direction, which is up here, and its
-		"height" as in the z direction, which is into the screen. */ 
-			//First draw a wall with dy height resting on the bottom of the world.
-			float zpos = 0.0f; /* Point on the z axis where we set down the wall.  0 would be center,
-			halfway down the hall, but we can offset it if we like. */ 
+ 
 			float height = 0.1f * _border.YSize; 
 			float ycenter = -_border.YRadius + height / 2.0f; 
 			float wallthickness = cGame3D.WALLTHICKNESS;
@@ -356,8 +358,7 @@ namespace ACFramework
 				this );
 			cSpriteTextureBox pspritebox = 
 				new cSpriteTextureBox( pwall.Skeleton, BitmapRes.Wall3, 16 ); //Sets all sides 
-				/* We'll tile our sprites three times along the long sides, and on the
-			short ends, we'll only tile them once, so we reset these two. */
+	
           pwall.Sprite = pspritebox; 
 		
 		
@@ -382,14 +383,18 @@ namespace ACFramework
 				new cSpriteTextureBox( pdwall.Skeleton, BitmapRes.Door ); 
 			pdwall.Sprite = pspritedoor;
 
-             
+			*/
+
 		} 
+
+
+
+
 
         public void setRoom1( )
         {
-            Biota.purgeCritters<cCritterWall>();
-            Biota.purgeCritters<cCritter3Dcharacter>();
-            Biota.purgeCritters<cCritterShape>();
+			/*
+
             setBorder(10.0f, 15.0f, 10.0f); 
 	        cRealBox3 skeleton = new cRealBox3();
             skeleton.copy( _border );
@@ -399,8 +404,7 @@ namespace ACFramework
 	        SkyBox.setSideSolidColor( cRealBox3.HIY, Color.Blue );
 	        _seedcount = 0; ; ;
 	        Player.setMoveBox( new cRealBox3( 10.0f, 15.0f, 10.0f ) );
-            float zpos = 0.0f; /* Point on the z axis where we set down the wall.  0 would be center,
-			halfway down the hall, but we can offset it if we like. */
+            float zpos = 0.0f;
             float height = 0.1f * _border.YSize;
             float ycenter = -_border.YRadius + height / 2.0f;
             float wallthickness = cGame3D.WALLTHICKNESS;
@@ -413,15 +417,16 @@ namespace ACFramework
                 this);
             cSpriteTextureBox pspritebox =
                 new cSpriteTextureBox(pwall.Skeleton, BitmapRes.Wall3, 16); //Sets all sides 
-            /* We'll tile our sprites three times along the long sides, and on the
-        short ends, we'll only tile them once, so we reset these two. */
+  
             pwall.Sprite = pspritebox;
             wentThrough = true;
             startNewRoom = Age;
+			*/
         }
 		
 		public override void seedCritters() 
 		{
+			/*
 			Biota.purgeCritters<cCritterBullet>(); 
 			Biota.purgeCritters<cCritter3Dcharacter>();
             for (int i = 0; i < _seedcount; i++) 
@@ -455,7 +460,7 @@ namespace ACFramework
 			    { 
 				    value.setViewpoint( new cVector3( 0.0f, 0.3f, -1.0f ), _border.Center); 
 					//Always make some setViewpoint call simply to put in a default zoom.
-				    value.zoom( 0.65f ); //Wideangle 
+				    value.zoom( 0.35f ); //Wideangle 
 				    cListenerViewerRide prider = ( cListenerViewerRide )( value.Listener); 
 				    prider.Offset = (new cVector3( -1.5f, 0.0f, 1.0f)); /* This offset is in the coordinate
 				    system of the player, where the negative X axis is the negative of the
@@ -488,13 +493,11 @@ namespace ACFramework
 					//(need to recheck propcount in case we just called seedCritters).
 			int modelcount = Biota.count<cCritter3Dcharacter>(); 
 			int modelstoadd = _seedcount - modelcount; 
-			for ( int i = 0; i < modelstoadd; i++)
-            {
-				new cCritter3Dcharacter( this );
-                
-            }
+			//for ( int i = 0; i < modelstoadd; i++) 
+				//new cCritter3Dcharacter( this ); 
 		// (3) Maybe check some other conditions.
 
+			/*
             if (wentThrough && (Age - startNewRoom) > 2.0f)
             {
                 MessageBox.Show("What an idiot.");
@@ -506,6 +509,7 @@ namespace ACFramework
                 setRoom1();
                 doorcollision = false;
             }
+			*/
 		} 
 		
 	} 
